@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "m m",
+    "m m"
+  ],
+  "key": {
+    "m": "meteors:frozen_iron"
+  },
+  "result": {
+    "id": "meteors:frezarite_boots",
+    "count": 1
+  }
+}

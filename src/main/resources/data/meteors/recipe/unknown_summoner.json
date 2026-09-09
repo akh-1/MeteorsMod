@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "meteors:meteor_chip",
+    "meteors:frezarite_crystal",
+    "meteors:kreknorite_chip",
+    "minecraft:glowstone_dust"
+  ],
+  "result": {
+    "id": "meteors:unknown_summoner",
+    "count": 1
+  }
+}

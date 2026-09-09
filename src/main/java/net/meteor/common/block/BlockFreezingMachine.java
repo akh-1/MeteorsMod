@@ -1,119 +1,94 @@
 package net.meteor.common.block;
 
-import java.util.Random;
+import net.meteor.common.registry.ModBlockEntities;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.BlockHitResult;
+import org.jspecify.annotations.Nullable;
 
-import net.meteor.common.ClientProxy;
-import net.meteor.common.MeteorsMod;
-import net.meteor.common.tileentity.TileEntityFreezingMachine;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IIcon;
-import net.minecraft.util.MathHelper;
-import net.minecraft.world.World;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+/** Bloque de la máquina congeladora (orientable, con interfaz y tick). */
+public class BlockFreezingMachine extends Block implements EntityBlock {
 
-public class BlockFreezingMachine extends BlockContainerMeteorsMod {
-	
-	private IIcon FrontIcon;
-	private IIcon FrontIcon_Empty;
+	public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+	/** Encendida: hay frío y trabajo en curso. Solo se usa para las partículas. */
+	public static final net.minecraft.world.level.block.state.properties.BooleanProperty LIT =
+			BlockStateProperties.LIT;
 
-	public BlockFreezingMachine() {
-		super(Material.rock);
+	public BlockFreezingMachine(Properties properties) {
+		super(properties);
+		this.registerDefaultState(this.stateDefinition.any()
+				.setValue(FACING, Direction.NORTH)
+				.setValue(LIT, Boolean.FALSE));
 	}
-	
+
 	@Override
-	public void onBlockPlacedBy(World par1World, int par2, int par3, int par4, EntityLivingBase par5EntityLiving, ItemStack itemstack) {
-		super.onBlockPlacedBy(par1World, par2, par3, par4, par5EntityLiving, itemstack);
-		
-		int l = MathHelper.floor_double((double)(par5EntityLiving.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
-
-        if (l == 0)
-        {
-        	par1World.setBlockMetadataWithNotify(par2, par3, par4, 2, 2); // 2
-        }
-
-        if (l == 1)
-        {
-        	par1World.setBlockMetadataWithNotify(par2, par3, par4, 5, 2); // 5
-        }
-
-        if (l == 2)
-        {
-        	par1World.setBlockMetadataWithNotify(par2, par3, par4, 3, 2); // 3
-        }
-
-        if (l == 3)
-        {
-        	par1World.setBlockMetadataWithNotify(par2, par3, par4, 4, 2); // 4
-        }
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(FACING, LIT);
 	}
-	
+
 	@Override
-	@SideOnly(Side.CLIENT)
-    public IIcon getIcon(int side, int meta) {
-		if (side == 3 && meta == 0) {
-			return FrontIcon_Empty;
+	public @Nullable BlockState getStateForPlacement(BlockPlaceContext ctx) {
+		return this.defaultBlockState()
+				.setValue(FACING, ctx.getHorizontalDirection().getOpposite())
+				.setValue(LIT, Boolean.FALSE);
+	}
+
+	/** Aura fría en las cuatro esquinas mientras la máquina tiene trabajo. */
+	@Override
+	public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+		if (!state.getValue(LIT)) return;
+
+		float cx = pos.getX() + 0.5F;
+		float cy = pos.getY() + 0.4F + random.nextFloat() * 0.4F;
+		float cz = pos.getZ() + 0.5F;
+		float a = 0.52F;
+		float b = random.nextFloat() * 0.6F - 0.3F;
+
+		level.addParticle(ModParticleEffects.FREZA_DUST, cx - a, cy, cz + b, 0.0D, 0.0D, 0.0D);
+		level.addParticle(ModParticleEffects.FREZA_DUST, cx + a, cy, cz + b, 0.0D, 0.0D, 0.0D);
+		level.addParticle(ModParticleEffects.FREZA_DUST, cx + b, cy, cz - a, 0.0D, 0.0D, 0.0D);
+		level.addParticle(ModParticleEffects.FREZA_DUST, cx + b, cy, cz + a, 0.0D, 0.0D, 0.0D);
+	}
+
+	@Nullable
+	@Override
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return new FreezingMachineBlockEntity(pos, state);
+	}
+
+	@Override
+	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+		if (!level.isClientSide() && player instanceof ServerPlayer) {
+			BlockEntity be = level.getBlockEntity(pos);
+			if (be instanceof FreezingMachineBlockEntity machine) {
+				player.openMenu(machine);
+			}
 		}
-		int i = meta > 5 ? meta - 4 : meta;
-		IIcon front = meta > 5 ? this.FrontIcon : this.FrontIcon_Empty;
-		return side == 1 ? this.blockIcon : (side == 0 ? this.blockIcon : (side != i ? this.blockIcon : front));
-    }
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-    public void registerBlockIcons(IIconRegister reg) {
-		this.blockIcon = reg.registerIcon(MeteorsMod.MOD_ID + ":Freezer_Side");
-		this.FrontIcon = reg.registerIcon(MeteorsMod.MOD_ID + ":Freezer_Front");
-		this.FrontIcon_Empty = reg.registerIcon(MeteorsMod.MOD_ID + ":Freezer_Front_Empty");
-    }
-
-	@Override
-	public TileEntity createNewTileEntity(World world, int meta) {
-		return new TileEntityFreezingMachine();
+		return InteractionResult.SUCCESS;
 	}
-	
+
+	@Nullable
 	@Override
-	public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer player, int par6, float par7, float par8, float par9)
-	{
-		player.openGui(MeteorsMod.instance, 1, world, i, j, k);
-		return true;
+	@SuppressWarnings("unchecked")
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+		if (level.isClientSide()) return null;
+		return type == ModBlockEntities.FREEZING_MACHINE
+				? (lvl, pos, st, be) -> FreezingMachineBlockEntity.serverTick(lvl, pos, st, (FreezingMachineBlockEntity) be)
+				: null;
 	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-    public void randomDisplayTick(World p_149734_1_, int p_149734_2_, int p_149734_3_, int p_149734_4_, Random p_149734_5_)
-    {
-		int l = p_149734_1_.getBlockMetadata(p_149734_2_, p_149734_3_, p_149734_4_);
-        if (l > 5)
-        {
-            float f = (float)p_149734_2_ + 0.5F;
-            float f1 = (float)p_149734_3_ + 0.0625F + p_149734_5_.nextFloat() * 14.0F / 16.0F;
-            float f2 = (float)p_149734_4_ + 0.5F;
-            float f3 = 0.52F;
-            float f4 = p_149734_5_.nextFloat() * 0.6F - 0.3F;
-
-            if (l == 8)
-            {
-                ClientProxy.spawnParticle("frezadust", (double)(f - f3), (double)f1, (double)(f2 + f4), 0.0D, 0.0D, 0.0D, p_149734_1_, -1);
-            }
-            else if (l == 9)
-            {
-                ClientProxy.spawnParticle("frezadust", (double)(f + f3), (double)f1, (double)(f2 + f4), 0.0D, 0.0D, 0.0D, p_149734_1_, -1);
-            }
-            else if (l == 6)
-            {
-                ClientProxy.spawnParticle("frezadust", (double)(f + f4), (double)f1, (double)(f2 - f3), 0.0D, 0.0D, 0.0D, p_149734_1_, -1);
-            }
-            else if (l == 7)
-            {
-                ClientProxy.spawnParticle("frezadust", (double)(f + f4), (double)f1, (double)(f2 + f3), 0.0D, 0.0D, 0.0D, p_149734_1_, -1);
-            }
-        }
-    }
-
 }

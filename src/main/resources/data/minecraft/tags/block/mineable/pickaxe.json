@@ -1,0 +1,19 @@
+{
+  "replace": false,
+  "values": [
+    "meteors:meteorite_ore",
+    "meteors:frezarite_ore",
+    "meteors:meteorite_block",
+    "meteors:frozen_iron_block",
+    "meteors:kreknorite_block",
+    "meteors:red_meteor_gem_block",
+    "meteors:kreknorite_core",
+    "meteors:meteorite_core",
+    "meteors:frezarite_core",
+    "meteors:meteor_shield",
+    "meteors:freezing_machine",
+    "meteors:slippery_block",
+    "meteors:slippery_stairs",
+    "meteors:meteor_timer"
+  ]
+}

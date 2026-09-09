@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:iron_ingot",
+    "meteors:frezarite_crystal"
+  ],
+  "result": {
+    "id": "meteors:frozen_iron",
+    "count": 1
+  }
+}

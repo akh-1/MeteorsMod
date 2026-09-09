@@ -1,0 +1,37 @@
+{
+  "display": {
+    "icon": {
+      "id": "meteors:meteor_shield"
+    },
+    "title": {
+      "translate": "advancement.meteors.shield_crafted.title"
+    },
+    "description": {
+      "translate": "advancement.meteors.shield_crafted.desc"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "have_item": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "meteors:meteor_shield"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "have_item"
+    ]
+  ],
+  "parent": "meteors:meteors/material_gather"
+}

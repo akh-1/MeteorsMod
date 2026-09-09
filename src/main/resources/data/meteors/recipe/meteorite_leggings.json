@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "mmm",
+    "m m",
+    "m m"
+  ],
+  "key": {
+    "m": "meteors:meteorite_ingot"
+  },
+  "result": {
+    "id": "meteors:meteorite_leggings",
+    "count": 1
+  }
+}

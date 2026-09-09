@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:bowl",
+    "minecraft:sugar",
+    "minecraft:milk_bucket",
+    "meteors:frezarite_crystal"
+  ],
+  "result": {
+    "id": "meteors:vanilla_ice_cream",
+    "count": 4
+  }
+}

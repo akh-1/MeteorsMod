@@ -1,0 +1,33 @@
+{
+	"schemaVersion": 1,
+	"id": "meteors",
+	"version": "${version}",
+	"name": "Falling Meteors",
+	"description": "Añade meteoros que caen del cielo con minerales para crear herramientas, armaduras y objetos relacionados. Port a Fabric 1.21.11 del mod original de AlexDGr8r.",
+	"authors": [
+		"AlexDGr8r (mod original 1.7.10)",
+		"Port a Fabric 1.21.11"
+	],
+	"contact": {
+		"sources": "https://github.com/AlexDGr8r/MeteorsMod"
+	},
+	"license": "ARR",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.meteor.common.MeteorsMod"
+		],
+		"client": [
+			"net.meteor.client.MeteorsModClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.18.2",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"trinkets": "*"
+	}
+}

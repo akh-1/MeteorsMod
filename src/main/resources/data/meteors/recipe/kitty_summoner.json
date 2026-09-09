@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "mfm",
+    "fsf",
+    "mfm"
+  ],
+  "key": {
+    "m": "meteors:meteorite_ingot",
+    "f": "minecraft:cod",
+    "s": "meteors:meteor_summoner"
+  },
+  "result": {
+    "id": "meteors:kitty_summoner",
+    "count": 1
+  }
+}

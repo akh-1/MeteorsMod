@@ -1,0 +1,37 @@
+{
+  "display": {
+    "icon": {
+      "id": "meteors:burned_earth"
+    },
+    "title": {
+      "translate": "advancement.meteors.meteor_blocked.title"
+    },
+    "description": {
+      "translate": "advancement.meteors.meteor_blocked.desc"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "have_item": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "meteors:burned_earth"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "have_item"
+    ]
+  ],
+  "parent": "meteors:meteors/shield_crafted"
+}

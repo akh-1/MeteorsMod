@@ -1,0 +1,6 @@
+{
+  "sources": [
+    { "type": "minecraft:single", "resource": "meteors:entity/meteor_timer" },
+    { "type": "minecraft:single", "resource": "meteors:entity/meteor_shield" }
+  ]
+}

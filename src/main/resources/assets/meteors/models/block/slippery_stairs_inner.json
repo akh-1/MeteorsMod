@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "meteors:block/slippery_block",
+    "top": "meteors:block/slippery_block",
+    "side": "meteors:block/slippery_block"
+  }
+}

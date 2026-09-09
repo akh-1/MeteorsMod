@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "c",
+    "s",
+    "s"
+  ],
+  "key": {
+    "c": "meteors:frozen_iron",
+    "s": "minecraft:stick"
+  },
+  "result": {
+    "id": "meteors:frezarite_shovel",
+    "count": 1
+  }
+}

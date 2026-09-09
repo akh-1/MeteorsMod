@@ -1,0 +1,37 @@
+{
+  "display": {
+    "icon": {
+      "id": "meteors:meteor_timer"
+    },
+    "title": {
+      "translate": "advancement.meteors.crafted_meteor_timer.title"
+    },
+    "description": {
+      "translate": "advancement.meteors.crafted_meteor_timer.desc"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "have_item": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "meteors:meteor_timer"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "have_item"
+    ]
+  ],
+  "parent": "meteors:meteors/crafted_detector"
+}

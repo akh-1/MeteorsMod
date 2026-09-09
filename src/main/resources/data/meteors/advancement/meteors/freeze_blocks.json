@@ -1,0 +1,37 @@
+{
+  "display": {
+    "icon": {
+      "id": "meteors:slippery_block"
+    },
+    "title": {
+      "translate": "advancement.meteors.freeze_blocks.title"
+    },
+    "description": {
+      "translate": "advancement.meteors.freeze_blocks.desc"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "have_item": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "meteors:slippery_block"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "have_item"
+    ]
+  ],
+  "parent": "meteors:meteors/freezer_crafted"
+}

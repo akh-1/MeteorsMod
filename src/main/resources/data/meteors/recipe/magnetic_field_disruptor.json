@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "oro",
+    "mdm",
+    "omo"
+  ],
+  "key": {
+    "o": "minecraft:obsidian",
+    "r": "meteors:red_meteor_gem",
+    "d": "minecraft:diamond",
+    "m": "meteors:meteorite_ingot"
+  },
+  "result": {
+    "id": "meteors:magnetic_field_disruptor",
+    "count": 1
+  }
+}

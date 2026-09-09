@@ -1,0 +1,37 @@
+{
+  "display": {
+    "icon": {
+      "id": "meteors:meteorite_core"
+    },
+    "title": {
+      "translate": "advancement.meteors.found_meteor.title"
+    },
+    "description": {
+      "translate": "advancement.meteors.found_meteor.desc"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "have_item": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "meteors:meteorite_core"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "have_item"
+    ]
+  ],
+  "parent": "meteors:meteors/crafted_detector"
+}

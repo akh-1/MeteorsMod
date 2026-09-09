@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "meteors:block/shield_torch_idle"
+    },
+    "lit=true": {
+      "model": "meteors:block/shield_torch_active"
+    }
+  }
+}

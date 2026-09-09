@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "cc",
+    "cs",
+    " s"
+  ],
+  "key": {
+    "c": "meteors:frozen_iron",
+    "s": "minecraft:stick"
+  },
+  "result": {
+    "id": "meteors:frezarite_axe",
+    "count": 1
+  }
+}

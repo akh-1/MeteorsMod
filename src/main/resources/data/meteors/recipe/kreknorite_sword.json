@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "c",
+    "c",
+    "s"
+  ],
+  "key": {
+    "c": "meteors:kreknorite_ingot",
+    "s": "minecraft:stick"
+  },
+  "result": {
+    "id": "meteors:kreknorite_sword",
+    "count": 1
+  }
+}

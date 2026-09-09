@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:torch",
+    "meteors:red_meteor_gem"
+  ],
+  "result": {
+    "id": "meteors:meteor_shield_torch",
+    "count": 1
+  }
+}

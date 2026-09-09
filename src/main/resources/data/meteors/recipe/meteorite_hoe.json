@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "mm",
+    " s",
+    " s"
+  ],
+  "key": {
+    "m": "meteors:meteorite_ingot",
+    "s": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "meteors:meteorite_hoe",
+    "count": 1
+  }
+}

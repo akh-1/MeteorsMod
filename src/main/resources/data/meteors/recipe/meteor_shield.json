@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "mmm",
+    "crc",
+    "ccc"
+  ],
+  "key": {
+    "m": "meteors:meteorite_ingot",
+    "c": "minecraft:cobblestone",
+    "r": "minecraft:redstone"
+  },
+  "result": {
+    "id": "meteors:meteor_shield",
+    "count": 1
+  }
+}

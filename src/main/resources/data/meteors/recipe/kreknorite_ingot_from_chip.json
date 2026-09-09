@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": "meteors:kreknorite_chip",
+  "result": {
+    "id": "meteors:kreknorite_ingot"
+  },
+  "experience": 0.75,
+  "cookingtime": 200
+}

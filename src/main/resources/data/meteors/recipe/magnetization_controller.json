@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " s ",
+    "lml"
+  ],
+  "key": {
+    "s": "minecraft:string",
+    "l": "minecraft:leather",
+    "m": "meteors:magnetic_field_disruptor"
+  },
+  "result": {
+    "id": "meteors:magnetization_controller",
+    "count": 1
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "display": {
+    "icon": {
+      "id": "meteors:red_meteor_gem"
+    },
+    "title": {
+      "translate": "advancement.meteors.shield_fully_upgraded.title"
+    },
+    "description": {
+      "translate": "advancement.meteors.shield_fully_upgraded.desc"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "have_item": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "meteors:red_meteor_gem"
+            ],
+            "count": {
+              "min": 4
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "have_item"
+    ]
+  ],
+  "parent": "meteors:meteors/shield_crafted"
+}

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:blue_ice",
+    "meteors:frezarite_crystal"
+  ],
+  "result": {
+    "id": "meteors:slippery_block",
+    "count": 1
+  }
+}

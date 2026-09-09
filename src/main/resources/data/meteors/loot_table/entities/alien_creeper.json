@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:entity",
+  "pools": [ {
+    "rolls": 1,
+    "entries": [
+      { "type": "minecraft:item", "weight": 1, "name": "meteors:red_meteor_gem" },
+      { "type": "minecraft:item", "weight": 1, "name": "meteors:meteor_chip" }
+    ]
+  } ]
+}

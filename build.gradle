@@ -1,62 +1,52 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
-    }
+plugins {
+    id 'fabric-loom' version "${loom_version}"
 }
 
-apply plugin: 'forge'
+version = project.mod_version
+group = project.maven_group
 
-version = "1.7.10-2.14.3"
-group= "net.meteor" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "meteors"
+base {
+    archivesName = project.archives_base_name
+}
 
 repositories {
-    maven { // The repo from which to get waila
-        name "Mobius Repo"
-        url "http://mobiusstrip.eu/maven"
-    }
-    maven { // the repo from which to get NEI and stuff
-        name 'CB Repo'
-        url "http://chickenbones.net/maven/"
-    }
+    mavenCentral()
+    maven { url = "https://maven.terraformersmc.com/" }
+    maven { url = "https://maven.nucleoid.xyz" }
+    maven {url = "https://api.modrinth.com/maven"}
+    maven { url ="https://maven.ladysnake.org/releases" }
 }
 
 dependencies {
-	compile "mcp.mobius.waila:Waila:1.5.9_1.7.10"
-	compile files("./Baubles-deobf-1.7.10-1.0.1.7.jar") // If Azanor has a maven repo, I'll change it over
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // Trinkets (opcional en runtime; el mod funciona sin él)
+    modCompileOnly "maven.modrinth:trinkets-polymer:3.11.0-beta.1+polymerport.4"
+    modCompileOnly ('eu.pb4:sgui:1.12.0+1.21.11')
+    modCompileOnly ('eu.pb4:player-data-api:0.9.1+1.21.11')
+    modCompileOnly("org.ladysnake.cardinal-components-api:cardinal-components-base:7.3.0")
+    modCompileOnly("org.ladysnake.cardinal-components-api:cardinal-components-entity:7.3.0")
+
+    // Se añadirá cuando metamos el primer mixin (p.ej. el spawn de meteoros en el mundo):
+    // annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.4.1")
 }
 
-minecraft {
-    version = "1.7.10-10.13.2.1291"
-    assetDir = "eclipse/assets"
-}
-processResources
-{
-	// this will ensure that this task is redone when the versions change.
+processResources {
     inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
 
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-                
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-        
-    // copy everything else, thats not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    withSourcesJar()
 }

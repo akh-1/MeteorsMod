@@ -1,0 +1,6 @@
+{
+  "layers": {
+    "humanoid": [ { "texture": "meteors:kreknorite" } ],
+    "humanoid_leggings": [ { "texture": "meteors:kreknorite" } ]
+  }
+}

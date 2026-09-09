@@ -1,89 +1,89 @@
 package net.meteor.common.block;
 
-import net.meteor.common.tileentity.TileEntityMeteorTimer;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.IIcon;
-import net.minecraft.util.StatCollector;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.meteor.common.climate.GhostMeteor;
+import net.meteor.common.climate.MeteorForecast;
+import net.meteor.common.registry.ModBlockEntities;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jspecify.annotations.Nullable;
 
-public class BlockMeteorTimer extends BlockContainerMeteorsMod {
-	
-	@SideOnly(Side.CLIENT)
-	private IIcon timerSide;
+/** Bloque Meteor Timer: informa del tiempo y emite redstone justo antes del impacto. */
+public class BlockMeteorTimer extends Block implements EntityBlock {
 
-	public BlockMeteorTimer() {
-		super(Material.redstoneLight);
-		this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.5F, 1.0F);
+	private static final VoxelShape SHAPE = Shapes.box(0.0, 0.0, 0.0, 1.0, 0.625, 1.0);
+
+	public BlockMeteorTimer(Properties properties) {
+		super(properties);
 	}
-	
+
 	@Override
-	public boolean isOpaqueCube() {
-		return false;
+	protected RenderShape getRenderShape(BlockState state) {
+		return RenderShape.INVISIBLE;
 	}
-	
+
 	@Override
-	public boolean renderAsNormalBlock() {
-		return false;
+	protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
+		return SHAPE;
 	}
-	
-	public int getRenderType() {
-        return -1;
-    }
-	
+
+	@Nullable
 	@Override
-	public boolean canProvidePower() {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return new MeteorTimerBlockEntity(pos, state);
+	}
+
+	@Nullable
+	@Override
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+		if (level.isClientSide()) return null;
+		return type == ModBlockEntities.METEOR_TIMER
+				? (lvl, pos, st, be) -> MeteorTimerBlockEntity.serverTick(lvl, pos, st, (MeteorTimerBlockEntity) be)
+				: null;
+	}
+
+	// --- Redstone ---
+	@Override
+	protected boolean isSignalSource(BlockState state) {
 		return true;
 	}
-	
-	/**
-     * Returns true if the block is emitting indirect/weak redstone power on the specified side. If isBlockNormalCube
-     * returns true, standard redstone propagation rules will apply instead and this will not be called. Args: World, X,
-     * Y, Z, side. Note that the side is reversed - eg it is 1 (up) when checking the bottom of the block.
-     */
+
 	@Override
-    public int isProvidingWeakPower(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5) {
-    	return par1IBlockAccess.getBlockMetadata(par2, par3, par4);
-    }
-	
-	@Override
-	public int getMobilityFlag() {
-		return 1;
+	protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+		return level.getBlockEntity(pos) instanceof MeteorTimerBlockEntity t ? t.getPower() : 0;
 	}
-	
-	@SideOnly(Side.CLIENT)
+
 	@Override
-    public AxisAlignedBB getSelectedBoundingBoxFromPool(World par1World, int par2, int par3, int par4)
-    {
-        return AxisAlignedBB.getBoundingBox((double)par2 + this.minX, (double)par3 + this.minY, (double)par4 + this.minZ, (double)par2 + this.maxX, (double)par3 + this.maxY + 0.125D, (double)par4 + this.maxZ);
-    }
-	
-	@Override
-	public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer player, int par6, float par7, float par8, float par9)
-	{
-		if (!world.isRemote) {
-			TileEntityMeteorTimer tEntity = (TileEntityMeteorTimer)world.getTileEntity(i, j, k);
-			tEntity.quickMode = !tEntity.quickMode;
-			if (tEntity.quickMode) {
-				player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("MeteorTimer.modeChange.two")));
-			} else {
-				player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("MeteorTimer.modeChange.one")));
+	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+		if (!level.isClientSide() && player instanceof ServerPlayer) {
+			boolean quick = false;
+			if (level.getBlockEntity(pos) instanceof MeteorTimerBlockEntity t) {
+				quick = t.toggleQuickMode();
 			}
-			world.markBlockForUpdate(i, j, k);
+			GhostMeteor soonest = MeteorForecast.get((net.minecraft.server.level.ServerLevel) level).getSoonestMeteor();
+			Component mode = Component.translatable(quick ? "gui.meteors.timer.mode.pulse" : "gui.meteors.timer.mode.analog");
+			Component time = soonest == null
+					? Component.translatable("gui.meteors.timer.unknown")
+					: Component.translatable("gui.meteors.timer.next", soonest.getSecondsLeft());
+			player.displayClientMessage(mode.copy().append(" — ").append(time).withStyle(ChatFormatting.AQUA), true);
 		}
-		
-		return true;
+		return InteractionResult.SUCCESS;
 	}
-
-	@Override
-	public TileEntity createNewTileEntity(World world, int metadata) {
-		return new TileEntityMeteorTimer();
-	}
-
 }
