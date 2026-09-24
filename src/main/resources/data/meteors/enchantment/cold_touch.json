@@ -1,10 +1,21 @@
 {
-  "description": { "translate": "enchantment.meteors.cold_touch" },
-  "supported_items": "#minecraft:enchantable/armor",
+  "description": {
+    "translate": "enchantment.meteors.cold_touch"
+  },
+  "supported_items": "#meteors:enchantable/cold_touch",
   "weight": 5,
   "max_level": 2,
-  "min_cost": { "base": 15, "per_level_above_first": 6 },
-  "max_cost": { "base": 60, "per_level_above_first": 6 },
+  "min_cost": {
+    "base": 15,
+    "per_level_above_first": 6
+  },
+  "max_cost": {
+    "base": 60,
+    "per_level_above_first": 6
+  },
   "anvil_cost": 2,
-  "slots": [ "legs", "feet" ]
+  "slots": [
+    "mainhand",
+    "feet"
+  ]
 }

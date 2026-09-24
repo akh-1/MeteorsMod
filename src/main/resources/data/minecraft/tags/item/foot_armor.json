@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "meteors:meteorite_boots",
+    "meteors:frezarite_boots",
+    "meteors:kreknorite_boots"
+  ]
+}

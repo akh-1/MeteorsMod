@@ -12,4 +12,6 @@ gradlew
 *.bat
 *.sh
 *.jar
-*.class
+*.class.DS_Store
+.idea
+.DS_Store

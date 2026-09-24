@@ -13,8 +13,11 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import java.util.function.BooleanSupplier;
 
 public class MeteorShieldMenu extends AbstractContainerMenu {
 
@@ -37,9 +40,12 @@ public class MeteorShieldMenu extends AbstractContainerMenu {
 
 		// Slot 0: chip de carga (un solo chip)
 		this.addSlot(new SingleSlot(inv, 0, 47, 60, ModItems.METEOR_CHIP));
-		// Slots 1-4: gemas de poder (una gema cada uno)
+		// Slots 1-4: gemas de poder (una gema cada uno), solo con el escudo ya
+		// cargado. Durante la carga no activaban nada —el alcance es 0 y el escudo
+		// no se registra hasta cargar—, pero se podian dejar puestas y sonaba la
+		// subida de nivel sin que el escudo funcionase.
 		for (int i = 0; i < 4; i++) {
-			this.addSlot(new SingleSlot(inv, i + 1, 67 + i * 29, 60, ModItems.RED_METEOR_GEM));
+			this.addSlot(new SingleSlot(inv, i + 1, 67 + i * 29, 60, ModItems.RED_METEOR_GEM, this::getCharged));
 		}
 		// Slots 5-12: materiales recogidos (solo extraer), rejilla 2x4
 		for (int i = 0; i < 4; i++) {
@@ -121,16 +127,24 @@ public class MeteorShieldMenu extends AbstractContainerMenu {
 
 	/** Slot que solo admite un item concreto y como mucho 1 unidad. */
 	private static class SingleSlot extends Slot {
-		private final net.minecraft.world.item.Item allowed;
-		SingleSlot(Container c, int index, int x, int y, net.minecraft.world.item.Item allowed) {
-			super(c, index, x, y);
-			this.allowed = allowed;
+		private final Item allowed;
+		/** Si el hueco admite su objeto ahora mismo. */
+		private final BooleanSupplier open;
+
+		SingleSlot(Container c, int i, int x, int y, Item allowed) {
+			this(c, i, x, y, allowed, () -> true);
 		}
-		@Override public boolean mayPlace(ItemStack stack) { return stack.is(allowed); }
+
+		SingleSlot(Container c, int i, int x, int y, Item allowed, BooleanSupplier open) {
+			super(c, i, x, y);
+			this.allowed = allowed;
+			this.open = open;
+		}
+
+		@Override public boolean mayPlace(ItemStack stack) { return stack.is(allowed) && open.getAsBoolean(); }
 		@Override public int getMaxStackSize() { return 1; }
 	}
 
-	/** Slot de solo extracción (materiales recogidos). */
 	private static class TakeOnlySlot extends Slot {
 		TakeOnlySlot(Container c, int index, int x, int y) { super(c, index, x, y); }
 		@Override public boolean mayPlace(ItemStack stack) { return false; }

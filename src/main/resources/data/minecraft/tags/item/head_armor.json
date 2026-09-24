@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "meteors:meteorite_helmet",
+    "meteors:frezarite_helmet",
+    "meteors:kreknorite_helmet"
+  ]
+}

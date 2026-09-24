@@ -4,6 +4,9 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.meteor.common.registry.ModItems;
 import net.minecraft.core.BlockPos;
+import net.fabricmc.fabric.api.item.v1.EnchantingContext;
+import net.fabricmc.fabric.api.item.v1.EnchantmentEvents;
+import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -61,6 +64,52 @@ public final class GearEffects {
 	public static void register() {
 		ServerTickEvents.END_WORLD_TICK.register(GearEffects::onWorldTick);
 		AttackEntityCallback.EVENT.register(GearEffects::onAttack);
+		EnchantmentEvents.ALLOW_ENCHANTING.register(GearEffects::allowEnchanting);
+	}
+
+	// === Que objetos ya traen cada efecto de serie ===
+	// Una sola fuente de verdad: estos metodos deciden tanto el efecto como que
+	// el encantamiento no se pueda poner encima. Si alguno cambia, cambian los dos.
+
+	private static boolean isFrezariteTool(ItemStack s) {
+		return s.is(ModItems.FREZARITE_SWORD) || s.is(ModItems.FREZARITE_PICKAXE) || s.is(ModItems.FREZARITE_AXE)
+				|| s.is(ModItems.FREZARITE_SHOVEL) || s.is(ModItems.FREZARITE_HOE);
+	}
+
+	private static boolean isMeteoriteTool(ItemStack s) {
+		return s.is(ModItems.METEORITE_SWORD) || s.is(ModItems.METEORITE_PICKAXE) || s.is(ModItems.METEORITE_AXE)
+				|| s.is(ModItems.METEORITE_SHOVEL) || s.is(ModItems.METEORITE_HOE);
+	}
+
+	private static boolean isMeteoriteArmor(ItemStack s) {
+		return s.is(ModItems.METEORITE_HELMET) || s.is(ModItems.METEORITE_CHESTPLATE)
+				|| s.is(ModItems.METEORITE_LEGGINGS) || s.is(ModItems.METEORITE_BOOTS);
+	}
+
+	/** Frio de serie: las armas y herramientas de Frezarito, y sus botas (Paso Helado). */
+	private static boolean hasInnateColdTouch(ItemStack s) {
+		return isFrezariteTool(s) || s.is(ModItems.FREZARITE_BOOTS);
+	}
+
+	/** Magnetizacion de serie: toda la armadura y las herramientas de Meteorito. */
+	private static boolean hasInnateMagnetization(ItemStack s) {
+		return isMeteoriteArmor(s) || isMeteoriteTool(s);
+	}
+
+	/**
+	 * Impide encantar con Tacto Frio o Magnetizacion lo que ya los trae de serie:
+	 * no suman nada y gastarian el encantamiento.
+	 *
+	 * Tiene que ser codigo y no una etiqueta porque una etiqueta suma objetos pero
+	 * no puede restarlos, y estos objetos estan en las etiquetas de armas y
+	 * armaduras para poder llevar los encantamientos vanilla. Aplica igual en la
+	 * mesa de encantar que en el yunque y en /enchant.
+	 */
+	private static TriState allowEnchanting(Holder<Enchantment> enchantment, ItemStack target,
+											EnchantingContext context) {
+		if (enchantment.is(COLD_TOUCH_KEY) && hasInnateColdTouch(target)) return TriState.FALSE;
+		if (enchantment.is(MAGNETIZATION_KEY) && hasInnateMagnetization(target)) return TriState.FALSE;
+		return TriState.DEFAULT;
 	}
 
 	private static void onWorldTick(ServerLevel world) {
@@ -82,9 +131,7 @@ public final class GearEffects {
 	// === Magnetización ===
 	private static void applyMagnetization(ServerLevel world, ServerPlayer player) {
 		ItemStack main = player.getItemBySlot(EquipmentSlot.MAINHAND);
-		boolean meteoriteTool = main.is(ModItems.METEORITE_SWORD) || main.is(ModItems.METEORITE_PICKAXE)
-				|| main.is(ModItems.METEORITE_AXE) || main.is(ModItems.METEORITE_SHOVEL) || main.is(ModItems.METEORITE_HOE);
-		int level = (anyMeteoriteArmor(player) || meteoriteTool) ? 1 : 0;
+		int level = (anyMeteoriteArmor(player) || isMeteoriteTool(main)) ? 1 : 0;
 		for (EquipmentSlot slot : ARMOR_SLOTS) {
 			level = Math.max(level, enchantLevel(world, player.getItemBySlot(slot), MAGNETIZATION_KEY));
 		}
@@ -147,6 +194,30 @@ public final class GearEffects {
 		}
 	}
 
+	// === Congelar, como la nieve en polvo ===
+	/**
+	 * Frio que añade cada golpe, por nivel. A nivel 1 hacen falta dos golpes para
+	 * congelar del todo; a nivel 2 —el de las armas de Frezarito— basta uno.
+	 */
+	private static final int FREEZE_PER_HIT = 70;
+	/** Cuanto se puede pasar del umbral: sin golpear mas, sigue congelado ~1,5 s. */
+	private static final int FREEZE_OVERSHOOT = 60;
+
+	/**
+	 * Sube el contador de congelacion del objetivo, el mismo que llena la nieve en
+	 * polvo. Al llegar al umbral la entidad queda congelada: tiembla, al jugador se
+	 * le escarcha la pantalla, y recibe daño de congelacion cada dos segundos. Fuera
+	 * de la nieve se descongela sola a dos ticks por tick.
+	 *
+	 * Respeta las mismas inmunidades que la nieve: canFreeze() es falso para los
+	 * mobs inmunes y para quien lleva armadura de cuero.
+	 */
+	private static void freeze(LivingEntity target, int level) {
+		if (!target.canFreeze()) return;
+		int limit = target.getTicksRequiredToFreeze() + FREEZE_OVERSHOOT;
+		target.setTicksFrozen(Math.min(limit, target.getTicksFrozen() + FREEZE_PER_HIT * level));
+	}
+
 	// === Inmunidad al fuego con set completo de Kreknorito ===
 	private static void applyKreknoriteFireImmunity(Player player) {
 		if (countArmor(player, ModItems.KREKNORITE_HELMET, ModItems.KREKNORITE_CHESTPLATE,
@@ -165,21 +236,24 @@ public final class GearEffects {
 		if (weapon.is(ModItems.KREKNORITE_SWORD)) {
 			living.setRemainingFireTicks(160); // ~8 segundos
 		}
-		boolean coldWeapon = weapon.is(ModItems.FREZARITE_SWORD) || weapon.is(ModItems.FREZARITE_PICKAXE)
-				|| weapon.is(ModItems.FREZARITE_AXE) || weapon.is(ModItems.FREZARITE_SHOVEL) || weapon.is(ModItems.FREZARITE_HOE)
-				|| enchantLevel(sl, weapon, COLD_TOUCH_KEY) > 0;
-		if (coldWeapon) {
+		// Las de Frezarito llevan el frio de serie al nivel maximo del
+		// encantamiento, leido de su propia definicion: si cambia max_level en el
+		// JSON, cambian con el. Las demas armas, por el nivel que tengan.
+		int cold = Math.max(isFrezariteTool(weapon) ? maxLevel(sl, COLD_TOUCH_KEY) : 0,
+				enchantLevel(sl, weapon, COLD_TOUCH_KEY));
+		if (cold > 0) {
 			living.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 60, 0));
+			freeze(living, cold);
 		}
 		return InteractionResult.PASS;
 	}
 
 	// === Helpers ===
 	private static boolean anyMeteoriteArmor(Player player) {
-		return player.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.METEORITE_HELMET)
-				|| player.getItemBySlot(EquipmentSlot.CHEST).is(ModItems.METEORITE_CHESTPLATE)
-				|| player.getItemBySlot(EquipmentSlot.LEGS).is(ModItems.METEORITE_LEGGINGS)
-				|| player.getItemBySlot(EquipmentSlot.FEET).is(ModItems.METEORITE_BOOTS);
+		for (EquipmentSlot slot : ARMOR_SLOTS) {
+			if (isMeteoriteArmor(player.getItemBySlot(slot))) return true;
+		}
+		return false;
 	}
 
 	private static int countArmor(Player player, Item helmet, Item chest, Item legs, Item boots) {
@@ -192,6 +266,11 @@ public final class GearEffects {
 	}
 
 	/** Lee el nivel de un encantamiento (por su clave) en un stack, sin EnchantmentHelper. */
+	private static int maxLevel(ServerLevel world, ResourceKey<Enchantment> key) {
+		return world.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).get(key)
+				.map(holder -> holder.value().getMaxLevel()).orElse(1);
+	}
+
 	private static int enchantLevel(ServerLevel world, ItemStack stack, ResourceKey<Enchantment> key) {
 		if (stack.isEmpty()) return 0;
 		Optional<Holder.Reference<Enchantment>> holder =
