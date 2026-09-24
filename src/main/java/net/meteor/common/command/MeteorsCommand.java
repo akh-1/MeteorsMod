@@ -23,6 +23,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.phys.Vec2;
 
@@ -44,18 +46,16 @@ public final class MeteorsCommand {
 					builder);
 
 	/**
-	 * Quién puede usar /meteors.
+	 * Quien puede usar /meteors: nivel 2, el de /summon o /give.
 	 *
-	 * TEMPORAL: en 1.21.11 no resuelven ni {@code CommandSourceStack#hasPermission(int)}
-	 * ni {@code PlayerList#isOp(GameProfile)} — este último ahora pide un
-	 * {@code NameAndId}. Hasta confirmar cómo obtenerlo, la consola y los bloques
-	 * de comandos pasan siempre, y los jugadores solo en un mundo de un jugador.
-	 * En servidor dedicado los comandos quedan restringidos a la consola.
+	 * En 1.21.11 Mojang rehizo los permisos: hasPermission(int) paso a ser
+	 * permissions().hasPermission(Permission). Es la misma llamada que usa
+	 * Polymer para sus propios comandos en esta version. La consola y los
+	 * bloques de comandos tienen nivel de sobra, asi que no hace falta tratarlos
+	 * aparte.
 	 */
 	private static boolean isOperator(CommandSourceStack src) {
-		ServerPlayer player = src.getPlayer();
-		if (player == null) return true;
-		return src.getServer().isSingleplayer();
+		return src.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.byId(2)));
 	}
 
 	public static void register() {

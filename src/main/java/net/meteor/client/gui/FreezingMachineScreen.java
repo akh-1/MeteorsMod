@@ -39,8 +39,13 @@ public class FreezingMachineScreen extends AbstractContainerScreen<FreezingMachi
 		gui.blit(RenderPipelines.GUI_TEXTURED, BG, this.leftPos + 13, this.topPos + 7, 176, 31, 20, 69, 256, 256);
 
 		// Indicador de frío (vertical) entre entrada y refrigerante
-		int c = this.menu.getCoolScaled(12);
-		gui.blit(RenderPipelines.GUI_TEXTURED, BG, this.leftPos + 73, this.topPos + 36 + 12 - c, 176, 12 - c, 14, c + 2, 256, 256);
+		// Solo mientras arde el refrigerante, como la llama del horno: dibujar
+		// c + 2 filas sin condicion dejaba dos filas visibles con el deposito
+		// vacio, y el indicador nunca llegaba a vaciarse.
+		if (this.menu.isCooling()) {
+			int c = this.menu.getCoolScaled(12);
+			gui.blit(RenderPipelines.GUI_TEXTURED, BG, this.leftPos + 73, this.topPos + 36 + 12 - c, 176, 12 - c, 14, c + 2, 256, 256);
+		}
 		// Flecha de progreso hacia la salida
 		int p = this.menu.getProgressScaled(24);
 		gui.blit(RenderPipelines.GUI_TEXTURED, BG, this.leftPos + 96, this.topPos + 34, 176, 14, p + 1, 16, 256, 256);

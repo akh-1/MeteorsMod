@@ -55,6 +55,11 @@ public class FreezingMachineMenu extends AbstractContainerMenu {
 		throw new IllegalStateException("Block entity incorrecto en " + pos);
 	}
 
+	/** Hay refrigerante ardiendo. Sin esto el indicador de frio nunca se vacia. */
+	public boolean isCooling() {
+		return this.data.get(0) > 0;
+	}
+
 	public int getCoolScaled(int n) {
 		int total = this.data.get(1);
 		return total == 0 ? 0 : this.data.get(0) * n / total;

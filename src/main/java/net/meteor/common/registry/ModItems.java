@@ -8,7 +8,10 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.equipment.ArmorType;
 
 import java.util.function.Function;
@@ -68,20 +71,20 @@ public final class ModItems {
 	public static final Item METEORITE_PICKAXE = register("meteorite_pickaxe",
 			Item::new, new Item.Properties().pickaxe(ModToolMaterials.METEORITE, 1f, -2.8f));
 	public static final Item METEORITE_AXE = register("meteorite_axe",
-			Item::new, new Item.Properties().axe(ModToolMaterials.METEORITE, 6f, -3.0f));
+			p -> new AxeItem(ModToolMaterials.METEORITE, 6f, -3.0f, p), new Item.Properties());
 	public static final Item METEORITE_SHOVEL = register("meteorite_shovel",
-			Item::new, new Item.Properties().shovel(ModToolMaterials.METEORITE, 1.5f, -3.0f));
+			p -> new ShovelItem(ModToolMaterials.METEORITE, 1.5f, -3.0f, p), new Item.Properties());
 	public static final Item METEORITE_HOE = register("meteorite_hoe",
-			Item::new, new Item.Properties().hoe(ModToolMaterials.METEORITE, 0f, -3.0f));
+			p -> new HoeItem(ModToolMaterials.METEORITE, 0f, -3.0f, p), new Item.Properties());
 	// Frezarite
 	public static final Item FREZARITE_SWORD = register("frezarite_sword",
 			Item::new, new Item.Properties().sword(ModToolMaterials.FREZARITE, 3f, -2.4f));
 	public static final Item FREZARITE_PICKAXE = register("frezarite_pickaxe",
 			Item::new, new Item.Properties().pickaxe(ModToolMaterials.FREZARITE, 1f, -2.8f));
 	public static final Item FREZARITE_AXE = register("frezarite_axe",
-			Item::new, new Item.Properties().axe(ModToolMaterials.FREZARITE, 6f, -3.0f));
+			p -> new AxeItem(ModToolMaterials.FREZARITE, 6f, -3.0f, p), new Item.Properties());
 	public static final Item FREZARITE_SHOVEL = register("frezarite_shovel",
-			Item::new, new Item.Properties().shovel(ModToolMaterials.FREZARITE, 1.5f, -3.0f));
+			p -> new ShovelItem(ModToolMaterials.FREZARITE, 1.5f, -3.0f, p), new Item.Properties());
 	public static final Item FREZARITE_HOE = register("frezarite_hoe",
 			net.meteor.common.item.ColdHoeItem::new, new Item.Properties().hoe(ModToolMaterials.FREZARITE, 0f, -3.0f));
 	// Kreknorite (en el original era una espada de fuego con material de Meteorito;
