@@ -3,8 +3,6 @@
 backup of assets/*
 build/*
 eclipse/*
-gradle/*
-gradlew
 /src/api/*
 /bin/*
 /lib/*
